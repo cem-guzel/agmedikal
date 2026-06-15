@@ -5,6 +5,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import Link from 'next/link'
 
 gsap.registerPlugin(ScrollTrigger)
+ScrollTrigger.config({ ignoreMobileResize: true })
 
 const hizmetler = [
   { number: '01', title: 'Yetkili Satış', desc: 'Omron, Erka, Mediven ve daha fazlası için yetkili satış noktası. Orijinal ürün, resmi garanti.', detail: 'Stokta 500+ ürün' },

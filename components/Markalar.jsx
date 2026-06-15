@@ -5,7 +5,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import Image from 'next/image'
 
 gsap.registerPlugin(ScrollTrigger)
-
+ScrollTrigger.config({ ignoreMobileResize: true })
 const markalar = [
   { name: 'Omron', file: 'omron.jpg' },
   { name: 'Erka', file: 'erka.png' },

@@ -5,7 +5,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import Link from 'next/link'
 
 gsap.registerPlugin(ScrollTrigger)
-
+ScrollTrigger.config({ ignoreMobileResize: true })
 const kategoriler = [
   { title: 'Solunum Cihazları', desc: 'Cpap, Oto Cpap, Bpap ve oksijen konsantratörleri', tag: 'Medikal Cihaz', index: '01' },
   { title: 'Ortopedik Ürünler', desc: 'Dizlik, boyunluk, koltuk değneği, walker ve tekerlekli sandalye', tag: 'Ortopedi', index: '02' },
