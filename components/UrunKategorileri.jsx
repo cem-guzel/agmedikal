@@ -5,7 +5,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import Link from 'next/link'
 
 gsap.registerPlugin(ScrollTrigger)
-ScrollTrigger.config({ ignoreMobileResize: true })
+
 const kategoriler = [
   { title: 'Solunum Cihazları', desc: 'Cpap, Oto Cpap, Bpap ve oksijen konsantratörleri', tag: 'Medikal Cihaz', index: '01' },
   { title: 'Ortopedik Ürünler', desc: 'Dizlik, boyunluk, koltuk değneği, walker ve tekerlekli sandalye', tag: 'Ortopedi', index: '02' },
@@ -22,23 +22,32 @@ export default function UrunKategorileri() {
   const [hoveredIndex, setHoveredIndex] = useState(null)
 
   useEffect(() => {
-    // GSAP Context ile hafıza sızıntısını engelliyoruz
+    ScrollTrigger.config({ ignoreMobileResize: true })
+
     let ctx = gsap.context(() => {
       gsap.fromTo('.urun-header',
         { autoAlpha: 0, y: 40 },
-        { autoAlpha: 1, y: 0, duration: 0.8, ease: 'power3.out', scrollTrigger: { trigger: sectionRef.current, start: 'top 85%' } }
+        { autoAlpha: 1, y: 0, duration: 0.6, ease: 'power3.out', scrollTrigger: { trigger: sectionRef.current, start: 'top 85%', toggleActions: 'play none none none' } }
       )
 
-      // TypeScript eklentileri (as HTMLElement) temizlendi
-      gsap.utils.toArray('.urun-item').forEach((item, i) => {
-        gsap.fromTo(item,
-          { autoAlpha: 0, y: 30 },
-          { autoAlpha: 1, y: 0, duration: 0.5, delay: i * 0.05, ease: 'power3.out', scrollTrigger: { trigger: item, start: 'top 95%' } } 
-        )
-      })
+      // KESİN ÇÖZÜM BATCHING: 8 ayrı ScrollTrigger yerine tek bir tetikleyici ile hepsi sırayla giriyor!
+      gsap.fromTo('.urun-item',
+        { autoAlpha: 0, y: 30 },
+        { 
+          autoAlpha: 1, 
+          y: 0, 
+          duration: 0.4, 
+          stagger: 0.05, 
+          ease: 'power2.out', 
+          scrollTrigger: { 
+            trigger: '.bento-grid-container', // Ana ızgara kutusu tetikleniyor
+            start: 'top 90%', 
+            toggleActions: 'play none none none' // Yukarı kaydırınca kaybolmayı önler
+          } 
+        }
+      )
     }, sectionRef)
 
-    // Temizlik İşlemi
     return () => ctx.revert()
   }, [])
 
@@ -64,41 +73,43 @@ export default function UrunKategorileri() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-6">
+        {/* Izgaraya tetikleyici sınıfı (bento-grid-container) ekledik */}
+        <div className="bento-grid-container grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-6">
           {kategoriler.map((kat, i) => {
             const isWide = i === 0
             const colSpan = isWide ? 'md:col-span-8' : 'md:col-span-4'
 
             return (
+              /* DİKKAT: transition'ları ve shadow'ları sadece md: (masaüstü) varyantına çektik. Mobildeki CSS-GSAP savaşı bitti */
               <Link
                 href="/urunler"
                 key={i}
-                className={`urun-item invisible ${colSpan} group relative bg-white md:bg-white/60 md:backdrop-blur-md transform-gpu will-change-transform rounded-3xl p-8 md:p-10 border border-white/80 shadow-lg shadow-slate-200/40 hover:bg-white/90 hover:shadow-xl hover:shadow-teal-900/5 hover:-translate-y-1 hover:border-teal-100/50 transition-all duration-500 overflow-hidden cursor-pointer`}
+                className={`urun-item invisible ${colSpan} group relative bg-white rounded-3xl p-8 md:p-10 border border-slate-100 shadow-sm md:bg-white/60 md:backdrop-blur-md md:border-white/80 md:shadow-lg md:shadow-slate-200/40 md:hover:bg-white/90 md:hover:shadow-xl md:hover:shadow-teal-900/5 md:hover:-translate-y-1 md:hover:border-teal-100/50 md:transition-all md:duration-500 overflow-hidden cursor-pointer transform-gpu will-change-transform`}
                 onMouseEnter={() => setHoveredIndex(i)}
                 onMouseLeave={() => setHoveredIndex(null)}
               >
-                <div className="absolute left-0 top-0 bottom-0 w-1 bg-teal-500 opacity-0 group-hover:opacity-100 transition-all duration-500" />
+                <div className="absolute left-0 top-0 bottom-0 w-1 bg-teal-500 opacity-0 group-hover:opacity-100 md:transition-all md:duration-500" />
 
                 <div className="relative flex flex-col h-full min-h-[160px]">
                   <div className="flex items-start justify-between mb-auto z-10">
-                    <span className="font-serif italic text-slate-200 font-black text-5xl md:text-6xl leading-none tabular-nums group-hover:text-teal-100 transition-colors duration-500">
+                    <span className="font-serif italic text-slate-200 font-black text-5xl md:text-6xl leading-none tabular-nums group-hover:text-teal-100 md:transition-colors md:duration-500">
                       {kat.index}
                     </span>
-                    <span className="text-[10px] tracking-[0.2em] font-bold uppercase text-slate-500 border border-slate-200 bg-white/50 backdrop-blur-sm rounded-full px-3 py-1 group-hover:text-teal-700 group-hover:border-teal-200 group-hover:bg-teal-50 transition-all duration-500">
+                    <span className="text-[10px] tracking-[0.2em] font-bold uppercase text-slate-500 border border-slate-200 bg-white/50 backdrop-blur-sm rounded-full px-3 py-1 group-hover:text-teal-700 group-hover:border-teal-200 group-hover:bg-teal-50 md:transition-all md:duration-500">
                       {kat.tag}
                     </span>
                   </div>
 
                   <div className="mt-8 z-10">
-                    <h3 className={`font-bold text-slate-800 mb-2 group-hover:text-teal-600 transition-colors duration-300 ${isWide ? 'text-2xl md:text-3xl' : 'text-xl'}`}>
+                    <h3 className={`font-bold text-slate-800 mb-2 group-hover:text-teal-600 md:transition-colors md:duration-300 ${isWide ? 'text-2xl md:text-3xl' : 'text-xl'}`}>
                       {kat.title}
                     </h3>
-                    <p className="text-slate-500 text-sm leading-relaxed group-hover:text-slate-600 transition-colors duration-300 max-w-sm">
+                    <p className="text-slate-500 text-sm leading-relaxed group-hover:text-slate-600 md:transition-colors md:duration-300 max-w-sm">
                       {kat.desc}
                     </p>
                   </div>
 
-                  <div className="absolute bottom-0 right-0 w-12 h-12 bg-teal-50 rounded-tl-2xl flex items-center justify-center opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all duration-500">
+                  <div className="absolute bottom-0 right-0 w-12 h-12 bg-teal-50 rounded-tl-2xl flex items-center justify-center opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 md:transition-all md:duration-500">
                     <svg width="18" height="18" viewBox="0 0 16 16" fill="none">
                       <path d="M1 8h14M8 1l7 7-7 7" stroke="#0D9488" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                     </svg>
