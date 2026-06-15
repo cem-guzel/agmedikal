@@ -2,6 +2,7 @@
 import { useEffect, useRef } from 'react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import Image from 'next/image'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -21,53 +22,48 @@ export default function Markalar() {
   const sectionRef = useRef(null)
 
   useEffect(() => {
-    // Başlık kısmı için giriş animasyonu
-    gsap.fromTo('.marka-header',
-      { autoAlpha: 0, y: 30 },
-      {
-        autoAlpha: 1, y: 0, duration: 1, ease: 'power3.out',
-        scrollTrigger: { trigger: sectionRef.current, start: 'top 80%' }
-      }
-    )
+    // GSAP Context'i buraya da ekliyoruz ki arka planda klonlanıp telefonu yormasın!
+    let ctx = gsap.context(() => {
+      gsap.fromTo('.marka-header',
+        { autoAlpha: 0, y: 30 },
+        {
+          autoAlpha: 1, y: 0, duration: 0.6, ease: 'power3.out',
+          scrollTrigger: { trigger: sectionRef.current, start: 'top 85%' }
+        }
+      )
+    }, sectionRef)
 
-    // Mobil için "Merkez Odak" (Center Focus) Motoru
+    // Aşırı optimize edilmiş merkez odak motoru
     const cards = document.querySelectorAll('.marka-card')
-    let animationFrameId
+    let intervalId
 
-    const checkPositions = () => {
-      // Sadece mobil cihazlarda çalışsın (Masaüstü hover kullanır)
-      if (window.innerWidth < 768) {
+    if (window.innerWidth < 768) {
+      intervalId = setInterval(() => {
         const centerX = window.innerWidth / 2
-
         cards.forEach(card => {
           const rect = card.getBoundingClientRect()
           const cardCenter = rect.left + rect.width / 2
 
-          // Kartın merkezi, ekranın merkezine +- 90 piksel yakınsa aydınlat
           if (Math.abs(centerX - cardCenter) < 90) {
             card.classList.add('mobile-active')
           } else {
             card.classList.remove('mobile-active')
           }
         })
-      } else {
-        // Masaüstü çözünürlüğüne dönülürse tüm aktif sınıfları temizle
-        cards.forEach(card => card.classList.remove('mobile-active'))
-      }
-
-      animationFrameId = requestAnimationFrame(checkPositions)
+      }, 200) 
     }
 
-    checkPositions()
-
-    return () => cancelAnimationFrame(animationFrameId)
+    // Hem interval'i hem de GSAP animasyonlarını temizle
+    return () => {
+      clearInterval(intervalId)
+      ctx.revert() 
+    }
   }, [])
 
   const duplicatedMarkalar = [...markalar, ...markalar]
 
   return (
     <section ref={sectionRef} className="bg-white py-24 relative overflow-hidden flex flex-col justify-center">
-      
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-slate-200 to-transparent" />
       <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-slate-200 to-transparent" />
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[200px] bg-teal-50/50 rounded-full blur-[100px] pointer-events-none" />
@@ -84,9 +80,6 @@ export default function Markalar() {
               <span className="text-slate-300">Markalar</span>
             </h2>
           </div>
-          <p className="text-slate-500 text-base leading-relaxed max-w-sm md:text-right font-medium">
-            Dünya&apos;nın önde gelen medikal marka ve üreticilerinin Türkiye yetkili satış ve servis noktasıyız.
-          </p>
         </div>
       </div>
 
@@ -99,9 +92,11 @@ export default function Markalar() {
               key={i}
               className="marka-card mx-4 group relative bg-white/40 backdrop-blur-sm rounded-2xl w-48 h-32 flex shrink-0 items-center justify-center p-6 border border-slate-100 transition-all duration-500 cursor-pointer hover:border-teal-200 hover:bg-white hover:shadow-xl hover:shadow-teal-900/5 hover:-translate-y-2 [&.mobile-active]:border-teal-200 [&.mobile-active]:bg-white [&.mobile-active]:shadow-xl [&.mobile-active]:shadow-teal-900/5 [&.mobile-active]:-translate-y-2"
             >
-              <img
+              <Image
                 src={`/images/markalar/${marka.file}`}
                 alt={marka.name}
+                width={160} // ÇÖZÜM: Next.js'in istediği genişlik eklendi
+                height={60} // ÇÖZÜM: Next.js'in istediği yükseklik eklendi
                 className="max-h-14 max-w-full object-contain filter grayscale opacity-40 transition-all duration-500 group-hover:grayscale-0 group-hover:opacity-100 group-[.mobile-active]:grayscale-0 group-[.mobile-active]:opacity-100 group-[.mobile-active]:scale-110"
               />
             </div>
