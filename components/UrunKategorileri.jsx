@@ -73,7 +73,7 @@ export default function UrunKategorileri() {
               <Link
                 href="/urunler"
                 key={i}
-                className={`urun-item invisible ${colSpan} group relative bg-white/60 backdrop-blur-md rounded-3xl p-8 md:p-10 border border-white/80 shadow-lg shadow-slate-200/40 hover:bg-white/90 hover:shadow-xl hover:shadow-teal-900/5 hover:-translate-y-1 hover:border-teal-100/50 transition-all duration-500 overflow-hidden cursor-pointer`}
+                className={`urun-item invisible ${colSpan} group relative bg-white md:bg-white/60 md:backdrop-blur-md transform-gpu will-change-transform rounded-3xl p-8 md:p-10 border border-white/80 shadow-lg shadow-slate-200/40 hover:bg-white/90 hover:shadow-xl hover:shadow-teal-900/5 hover:-translate-y-1 hover:border-teal-100/50 transition-all duration-500 overflow-hidden cursor-pointer`}
                 onMouseEnter={() => setHoveredIndex(i)}
                 onMouseLeave={() => setHoveredIndex(null)}
               >

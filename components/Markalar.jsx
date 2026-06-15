@@ -90,7 +90,7 @@ export default function Markalar() {
           {duplicatedMarkalar.map((marka, i) => (
             <div
               key={i}
-              className="marka-card mx-4 group relative bg-white/40 backdrop-blur-sm rounded-2xl w-48 h-32 flex shrink-0 items-center justify-center p-6 border border-slate-100 transition-all duration-500 cursor-pointer hover:border-teal-200 hover:bg-white hover:shadow-xl hover:shadow-teal-900/5 hover:-translate-y-2 [&.mobile-active]:border-teal-200 [&.mobile-active]:bg-white [&.mobile-active]:shadow-xl [&.mobile-active]:shadow-teal-900/5 [&.mobile-active]:-translate-y-2"
+              className="marka-card mx-4 group relative bg-white md:bg-white/40 md:backdrop-blur-sm transform-gpu will-change-transform rounded-2xl w-48 h-32 flex shrink-0 items-center justify-center p-6 border border-slate-100 transition-all duration-500 cursor-pointer hover:border-teal-200 hover:bg-white hover:shadow-xl hover:shadow-teal-900/5 hover:-translate-y-2 [&.mobile-active]:border-teal-200 [&.mobile-active]:bg-white [&.mobile-active]:shadow-xl [&.mobile-active]:shadow-teal-900/5 [&.mobile-active]:-translate-y-2"
             >
               <Image
                 src={`/images/markalar/${marka.file}`}
