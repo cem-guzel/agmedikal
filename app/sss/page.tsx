@@ -60,7 +60,7 @@ export default function SSS() {
             <div className={`grid transition-all duration-300 ${activeIndex === i ? 'grid-rows-[1fr] mt-4 opacity-100' : 'grid-rows-[0fr] opacity-0'}`}>
               <p className="overflow-hidden text-slate-500 text-sm leading-relaxed">{faq.answer}</p>
             </div>
-          </div>
+          </div>// vercel tetikleme testi
         ))}
       </section>
 
