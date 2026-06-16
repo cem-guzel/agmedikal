@@ -11,38 +11,35 @@ export default function IletisimBanner() {
   const sectionRef = useRef(null)
 
   useEffect(() => {
-    // Mobil adres çubuğu krizini çözen ayar
     ScrollTrigger.config({ ignoreMobileResize: true })
 
-    // ESLint'e uygun 'const' ve hafıza sızıntısını önleyen Context
     const ctx = gsap.context(() => {
-      // CTA Kartı Animasyonu
+      // opacity yerine autoAlpha (Safari dostu)
       gsap.fromTo('.contact-card',
-        { opacity: 0, y: 30 },
+        { autoAlpha: 0, y: 30 },
         { 
-          opacity: 1, 
+          autoAlpha: 1, 
           y: 0, 
           duration: 0.8, 
           ease: 'power3.out', 
           scrollTrigger: { 
             trigger: sectionRef.current, 
             start: 'top 85%',
-            toggleActions: 'play none none none' // Geri kaydırmada kaybolmayı engeller
+            toggleActions: 'play none none none' 
           } 
         }
       )
 
-      // Harita Animasyonu
       gsap.fromTo('.map-card',
-        { opacity: 0, y: 30 },
+        { autoAlpha: 0, y: 30 },
         { 
-          opacity: 1, 
+          autoAlpha: 1, 
           y: 0, 
           duration: 0.8, 
           delay: 0.1, 
           ease: 'power3.out', 
           scrollTrigger: { 
-            trigger: '.contact-card', // Harita, CTA kartı göründüğünde tetiklensin
+            trigger: '.contact-card', 
             start: 'top 50%',
             toggleActions: 'play none none none'
           } 
@@ -57,10 +54,9 @@ export default function IletisimBanner() {
     <section ref={sectionRef} className="bg-[#F8FAFC] py-24 md:py-32 relative overflow-hidden">
       <div className="max-w-7xl mx-auto px-6 md:px-16">
 
-        {/* Premium CTA Kartı - Ağır blur topları temizlendi, zarif bir gradient kullanıldı */}
-        <div className="contact-card opacity-0 relative bg-gradient-to-br from-teal-700 to-teal-900 rounded-[2.5rem] p-10 md:p-16 overflow-hidden shadow-2xl shadow-teal-900/10 mb-12 transform-gpu will-change-transform">
+        {/* GPU zorlayan eklentiler temizlendi, invisible class'ı eklendi */}
+        <div className="contact-card invisible relative bg-gradient-to-br from-teal-700 to-teal-900 rounded-[2.5rem] p-10 md:p-16 overflow-hidden shadow-2xl shadow-teal-900/10 mb-12">
           
-          {/* Performans dostu, statik asimetrik dekorasyon (Blur YOK) */}
           <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-white/5 rounded-full translate-x-1/3 -translate-y-1/3 pointer-events-none" />
           <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-black/10 rounded-full -translate-x-1/4 translate-y-1/3 pointer-events-none" />
 
@@ -98,8 +94,8 @@ export default function IletisimBanner() {
           </div>
         </div>
 
-        {/* Harita Alanı - CSS Filtreleri (Grayscale vs) tamamen kaldırıldı */}
-        <div className="map-card opacity-0 relative rounded-[2rem] overflow-hidden border border-slate-200 shadow-xl shadow-slate-200/50 h-[400px] md:h-[500px] bg-slate-100 transform-gpu will-change-transform">
+        {/* transform-gpu tamamen kaldırıldı */}
+        <div className="map-card invisible relative rounded-[2rem] overflow-hidden border border-slate-200 shadow-xl shadow-slate-200/50 h-[400px] md:h-[500px] bg-slate-100">
           
           <iframe
             src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3192.1234!2d36.1234!3d36.1234!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMzbCsDA3JzI0LjIiTiAzNsKwMDcnMjQuMiJF!5e0!3m2!1str!2str!4v1610000000000!5m2!1str!2str"
@@ -112,7 +108,6 @@ export default function IletisimBanner() {
             referrerPolicy="no-referrer-when-downgrade"
           />
 
-          {/* Harita Üzerinde Yüzen Klas Adres Kartı - Mobil performansı için blur sadece masaüstünde çalışır */}
           <div className="absolute bottom-4 left-4 right-4 md:bottom-10 md:left-10 md:right-auto max-w-sm bg-white md:bg-white/90 md:backdrop-blur-md p-6 rounded-2xl border border-slate-100 shadow-2xl">
             <div className="flex items-start gap-4 mb-4">
               <div className="bg-teal-50 text-teal-600 p-3 rounded-xl shrink-0">
