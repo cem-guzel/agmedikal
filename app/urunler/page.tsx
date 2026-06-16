@@ -51,103 +51,95 @@ export default function Urunler() {
   const containerRef = useRef(null)
 
   useEffect(() => {
-    // Safari adres çubuğu düzeltmesi
     ScrollTrigger.config({ ignoreMobileResize: true })
 
-    // KESİN ÇÖZÜM: Memory leak'i engellemek için Context kullanıyoruz
     const ctx = gsap.context(() => {
-      // Sayfa Başlığı Animasyonu
-      gsap.fromTo('.urun-hero',
-        { autoAlpha: 0, y: 30 },
-        { autoAlpha: 1, y: 0, duration: 1.2, ease: 'power3.out' }
+      // 1. Editoryal Başlık Animasyonu (Sırayla yumuşak geliş)
+      gsap.fromTo('.urun-hero-anim',
+        { opacity: 0, y: 20 },
+        { opacity: 1, y: 0, duration: 0.8, stagger: 0.15, ease: 'power2.out' }
       )
 
-      // BENTO GRID BATCH ANIMASYONU: Tek tek yormak yerine hepsini sırayla getiriyoruz
-      gsap.fromTo('.product-card',
-        { autoAlpha: 0, y: 40 },
+      // 2. Performanslı Grid Kart Animasyonu (Tek scroll trigger, stagger ile sırayla)
+      gsap.fromTo('.product-card-v2',
+        { opacity: 0, y: 30 },
         {
-          autoAlpha: 1, 
+          opacity: 1, 
           y: 0,
-          duration: 0.6,
-          stagger: 0.1, // Kartların 0.1 saniye arayla akarak gelmesini sağlar
+          duration: 0.5,
+          stagger: 0.1, 
           ease: 'power3.out',
           scrollTrigger: { 
-            trigger: '.bento-grid-container', // Animasyon, kartların babası olan grid tetiklendiğinde başlar
-            start: 'top 90%',
-            toggleActions: 'play none none none' 
+            trigger: '.urun-grid-wrapper', 
+            start: 'top 85%',
+            toggleActions: 'play none none none' // Yukarı kaydırmada gizlenmeyi ve tekrar hesaplamayı engeller
           }
         }
       )
-      
-      // Çizgi çizilme animasyonu
-      gsap.fromTo('.draw-line',
-        { scaleX: 0 },
-        { scaleX: 1, duration: 1.5, ease: 'power3.inOut', scrollTrigger: { trigger: '.draw-line', start: 'top 90%' } }
-      )
     }, containerRef)
 
-    // Bileşen kapandığında hafızayı temizle
     return () => ctx.revert()
   }, [])
 
   return (
-    <main ref={containerRef} className="bg-slate-50 min-h-screen pt-28">
+    <main ref={containerRef} className="bg-[#F8FAFC] min-h-screen pt-32">
       
-      {/* 1. EDİTORYAL GİRİŞ */}
-      <section className="max-w-7xl mx-auto px-6 md:px-16 mb-20 relative">
-        <div className="absolute top-0 right-20 w-[400px] h-[400px] bg-teal-100/40 rounded-full blur-[100px] pointer-events-none transform-gpu will-change-transform" />
+      {/* 1. EDİTORYAL GİRİŞ - Ağır blur efektleri kaldırıldı, daha temiz bir mimari */}
+      <section className="max-w-7xl mx-auto px-6 md:px-16 mb-20 relative z-10">
+        
+        {/* Çok hafif, cihazı yormayan dekoratif nokta grid */}
+        <div 
+          className="absolute inset-0 z-0 opacity-30 pointer-events-none"
+          style={{ backgroundImage: 'radial-gradient(#cbd5e1 1px, transparent 1px)', backgroundSize: '40px 40px' }}
+        />
 
-        <div className="flex items-center justify-between border-b border-slate-200 pb-4 mb-16">
+        <div className="urun-hero-anim opacity-0 flex items-center justify-between border-b border-slate-200 pb-4 mb-16 relative z-10">
           <span className="text-[10px] font-bold tracking-[0.3em] text-slate-400 uppercase">Bölüm 02</span>
           <span className="text-[10px] font-bold tracking-[0.3em] text-slate-400 uppercase hidden sm:block">Ürün Katalogumuz</span>
           <span className="text-[10px] font-bold tracking-[0.3em] text-slate-400 uppercase">Antakya / TR</span>
         </div>
 
-        <div className="urun-hero invisible max-w-3xl">
-          <h1 className="font-serif italic text-4xl md:text-5xl lg:text-6xl text-slate-900 leading-tight mb-6">
-            Eksiksiz çözüm, <br/>
-            <span className="font-black font-sans not-italic text-transparent bg-clip-text bg-gradient-to-r from-teal-600 to-blue-600">
-              kaliteden ödün vermeden.
-            </span>
+        <div className="max-w-4xl relative z-10">
+          <h1 className="urun-hero-anim opacity-0 font-black text-5xl md:text-6xl lg:text-7xl text-slate-900 leading-[1.05] tracking-tight mb-8">
+            Eksiksiz Çözüm, <br/>
+            <span className="font-serif italic font-light text-slate-400">Kaliteden Ödün Vermeden.</span>
           </h1>
-          <p className="text-slate-500 font-medium text-lg leading-relaxed">
+          <p className="urun-hero-anim opacity-0 text-slate-500 font-medium text-lg md:text-xl leading-relaxed max-w-2xl">
             Solunum cihazlarından ortopedik desteklere, tansiyon aletlerinden klinik sarf malzemelerine kadar ihtiyaç duyduğunuz tüm medikal ürünler tek bir adreste.
           </p>
         </div>
       </section>
 
-      {/* 2. BENTO GRID ÜRÜN KATEGORİLERİ */}
+      {/* 2. TEMİZ GRID ÜRÜN KATEGORİLERİ - Safari dostu, sıfır cam efekti */}
       <section className="max-w-7xl mx-auto px-6 md:px-16 mb-32 relative z-10">
-        <div className="w-full h-px bg-slate-200 draw-line origin-left mb-12" />
-
-        {/* GSAP tetikleyicisi olarak kullanacağımız ana Grid */}
-        <div className="bento-grid-container grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        
+        <div className="urun-grid-wrapper grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {urunGruplari.map((grup, idx) => (
             <div 
               key={idx} 
-              // DİKKAT: hover durumundaki transition ve ağır cam efektlerini sadece masaüstüne (md:) ayarladık.
-              className="product-card invisible bg-white rounded-3xl p-8 border border-slate-100 shadow-sm md:bg-white/60 md:backdrop-blur-md md:border-white/80 md:shadow-lg md:shadow-slate-200/40 md:hover:shadow-xl md:hover:border-teal-100/50 md:hover:-translate-y-1 md:transition-all md:duration-300 group flex flex-col transform-gpu will-change-transform"
+              // DİKKAT: GSAP çakışmalarını önlemek için translate-y hover'ı kaldırıldı, sadece renk/gölge bırakıldı.
+              className="product-card-v2 opacity-0 bg-white rounded-[2rem] p-8 lg:p-10 border border-slate-100 shadow-sm hover:shadow-2xl hover:shadow-teal-900/5 hover:border-teal-100 transition-[box-shadow,border-color] duration-500 group flex flex-col transform-gpu will-change-transform"
             >
-              <div className="flex items-center gap-4 mb-6">
-                <div className="w-14 h-14 bg-teal-50 text-teal-600 rounded-2xl flex items-center justify-center md:group-hover:scale-110 md:group-hover:bg-teal-600 md:group-hover:text-white md:transition-all md:duration-300 shrink-0">
+              {/* İkon ve Başlık */}
+              <div className="flex items-center gap-5 mb-8">
+                <div className="w-14 h-14 bg-teal-50 text-teal-600 rounded-2xl flex items-center justify-center shrink-0 transition-colors duration-500 group-hover:bg-teal-600 group-hover:text-white">
                   {grup.icon}
                 </div>
-                <div>
-                  <h2 className="text-xl font-black text-slate-900 leading-tight md:group-hover:text-teal-700 transition-colors">
-                    {grup.title}
-                  </h2>
-                </div>
+                <h2 className="text-xl font-black text-slate-900 leading-tight group-hover:text-teal-700 transition-colors duration-300">
+                  {grup.title}
+                </h2>
               </div>
               
-              <p className="text-slate-500 text-sm font-medium mb-8">
+              <p className="text-slate-500 text-sm leading-relaxed font-medium mb-10">
                 {grup.desc}
               </p>
 
+              {/* Ürün Rozetleri (Pills) */}
               <div className="flex flex-wrap gap-2 mt-auto">
                 {grup.items.map((item, i) => (
                   <span 
                     key={i} 
-                    className="inline-flex items-center px-3 py-1.5 rounded-lg bg-slate-100 border border-slate-200 text-slate-600 text-xs font-bold md:hover:bg-teal-50 md:hover:text-teal-700 md:hover:border-teal-200 md:transition-colors cursor-default"
+                    className="inline-flex items-center px-3 py-1.5 rounded-xl bg-slate-50 border border-slate-100 text-slate-500 text-xs font-bold hover:bg-teal-50 hover:text-teal-700 hover:border-teal-200 transition-colors duration-300 cursor-default"
                   >
                     {item}
                   </span>
@@ -158,6 +150,7 @@ export default function Urunler() {
         </div>
       </section>
 
+      {/* 3. ORTAK BİLEŞENLER */}
       <Markalar />
       <IletisimBanner />
     </main>
