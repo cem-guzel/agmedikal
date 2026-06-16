@@ -3,6 +3,7 @@ import { useEffect, useRef } from 'react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import Link from 'next/link'
+import { ArrowRight } from 'lucide-react'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -14,106 +15,101 @@ const hizmetler = [
 ]
 
 export default function Hizmetler() {
-  const sectionRef = useRef(null)
-  const lineRef = useRef(null)
+  const containerRef = useRef(null)
 
   useEffect(() => {
     ScrollTrigger.config({ ignoreMobileResize: true })
 
-    let ctx = gsap.context(() => {
-      // Dikey çizgi animasyonu (Sadece masaüstünde scrub çalışsın, mobilde yükü kaldırıyoruz)
-      if (window.innerWidth > 768) {
-        gsap.fromTo(lineRef.current,
-          { scaleY: 0 },
-          { scaleY: 1, ease: 'none', scrollTrigger: { trigger: sectionRef.current, start: 'top 80%', end: 'bottom 20%', scrub: true } }
-        )
-      }
+    // ESLint kuralına uygun olarak 'const' kullanıldı
+    const ctx = gsap.context(() => {
+      // Tüm bölümün başlığı ve alt metni tek seferde yumuşakça gelir
+      gsap.fromTo('.hizmet-meta-anim',
+        { opacity: 0, y: 20 },
+        { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out', scrollTrigger: { trigger: containerRef.current, start: 'top 85%', toggleActions: 'play none none none' } }
+      )
 
-      // BAŞARILI BATCHING: forEach kaldırıldı. Tek tetikleyici, sırayla (stagger) giriş!
-      gsap.fromTo('.hizmet-row',
-        { autoAlpha: 0, x: -30 },
+      // Kartlar tek bir kapsayıcı tetiklenerek, sırayla ve mükemmel performansla uçarak girer
+      gsap.fromTo('.hizmet-card-v2',
+        { opacity: 0, y: 30 },
         { 
-          autoAlpha: 1, 
-          x: 0, 
+          opacity: 1, 
+          y: 0, 
           duration: 0.5, 
           stagger: 0.1, 
-          ease: 'power2.out',
+          ease: 'power3.out',
           scrollTrigger: {
-            trigger: '.hizmet-list-container', // Bireysel satırlar yerine ana kapsayıcı tetikleniyor
+            trigger: '.hizmet-grid-wrapper',
             start: 'top 90%',
-            toggleActions: 'play none none none' // KESİN ÇÖZÜM: Yukarı kaydırınca elemanların kaybolmasını engeller
+            toggleActions: 'play none none none' // Elemanların yukarı kaydırınca kaybolmasını kesin olarak engeller
           }
         }
       )
-
-      gsap.fromTo('.hizmet-header',
-        { autoAlpha: 0, y: 30 },
-        { autoAlpha: 1, y: 0, duration: 0.6, ease: 'power3.out', scrollTrigger: { trigger: sectionRef.current, start: 'top 85%', toggleActions: 'play none none none' } }
-      )
-    }, sectionRef)
+    }, containerRef)
 
     return () => ctx.revert()
   }, [])
 
   return (
-    <section ref={sectionRef} className="bg-white py-32 relative overflow-hidden">
-      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-teal-50/50 rounded-full blur-[120px] pointer-events-none" />
-
-      <div className="max-w-7xl mx-auto px-6 md:px-16">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-20 items-start">
-          
-          {/* Listeyi sarmalayan div'e sınıf ekledik */}
-          <div className="hizmet-list-container lg:col-span-7 relative order-2 lg:order-1 mt-12 lg:mt-0">
-            <div className="absolute left-0 top-0 bottom-0 w-px bg-slate-100">
-              <div ref={lineRef} className="w-full bg-teal-500 origin-top hidden md:block" style={{ height: '100%', scaleY: 0 }} />
+    <section ref={containerRef} className="bg-[#F8FAFC] py-32 relative overflow-hidden">
+      
+      <div className="max-w-7xl mx-auto px-6 md:px-16 relative z-10">
+        
+        {/* YENİ DIZAYN: Üst Hizmet Başlığı (Klasik asimetrik yapı yerine tam genişlik editoryal düzen) */}
+        <div className="hizmet-meta-anim opacity-0 flex flex-col md:flex-row md:items-end justify-between border-b border-slate-200 pb-12 mb-20 gap-8 transform-gpu will-change-transform">
+          <div>
+            <div className="flex items-center gap-4 mb-4">
+              <span className="w-12 h-[2px] bg-teal-600" />
+              <span className="text-teal-600 text-xs tracking-[0.4em] uppercase font-bold">Çözüm Ortaklarımız</span>
             </div>
-
-            {hizmetler.map((h, i) => (
-              /* DİKKAT: hover durumundaki transition'ları sadece md: (masaüstü) varyantına çektik, mobildeki çakışma bitti */
-              <div key={i} className="hizmet-row invisible group pl-8 md:pl-16 py-12 border-b border-slate-100 last:border-b-0 flex flex-col sm:flex-row sm:items-center gap-6 cursor-default md:hover:bg-slate-50/30 md:transition-all md:duration-500 transform-gpu will-change-transform">
-                <span className="font-serif italic text-slate-100 font-black text-7xl md:text-[5.5rem] leading-none w-28 shrink-0 group-hover:text-teal-500/20 md:transition-colors md:duration-700 tabular-nums select-none tracking-tighter">
-                  {h.number}
-                </span>
-
-                <div className="flex-1">
-                  <div className="flex items-center gap-4 mb-3">
-                    <h3 className="text-slate-800 font-bold text-2xl group-hover:text-teal-600 md:transition-colors md:duration-300">{h.title}</h3>
-                    <span className="text-[10px] tracking-[0.2em] uppercase text-teal-600 bg-teal-50 border border-teal-100/50 rounded-full px-3 py-1 opacity-0 group-hover:opacity-100 md:transition-all md:duration-500">
-                      {h.detail}
-                    </span>
-                  </div>
-                  <p className="text-slate-500 text-base leading-relaxed max-w-md group-hover:text-slate-700 md:transition-colors md:duration-300">
-                    {h.desc}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <div className="hizmet-header invisible lg:col-span-5 lg:sticky lg:top-40 order-1 lg:order-2 flex flex-col">
-            <div className="flex items-center gap-4 mb-6">
-              <span className="w-8 h-px bg-teal-500" />
-              <span className="text-teal-600 text-xs tracking-[0.4em] uppercase font-bold">Hizmetlerimiz</span>
-            </div>
-            <h2 className="text-slate-900 font-black leading-[1.1] tracking-tight text-4xl md:text-5xl lg:text-6xl mb-8">
-              Size Nasıl<br /><span className="text-slate-300">Yardımcı</span><br />Olabiliriz?
+            <h2 className="text-slate-900 font-black leading-none tracking-tight text-4xl md:text-5xl lg:text-6xl">
+              Profesyonel <span className="font-serif italic font-light text-slate-400">Hizmetler</span>
             </h2>
-            <p className="text-slate-500 text-base leading-relaxed font-medium mb-12">
-              Satış öncesinden satış sonrasına kadar her adımda, 20 yıllık tecrübemizle profesyonel destek sağlıyoruz.
-            </p>
-            <div className="flex items-center gap-8">
-              <Link href="/iletisim" className="group relative inline-flex items-center gap-4 text-slate-800 hover:text-teal-600 font-semibold text-sm tracking-widest uppercase md:transition-colors md:duration-300">
-                <div className="w-12 h-12 rounded-full border border-slate-200 flex items-center justify-center group-hover:border-teal-200 group-hover:bg-teal-50 md:transition-all md:duration-500">
-                   <svg width="14" height="14" viewBox="0 0 14 14" fill="none" className="translate-x-[-2px] group-hover:translate-x-0 md:transition-transform md:duration-300">
-                     <path d="M1 7h12M7 1l6 6-6 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                   </svg>
-                </div>
-                Detaylı Bilgi Alın
-              </Link>
-            </div>
           </div>
-
+          <p className="text-slate-500 text-base font-medium max-w-sm md:text-right leading-relaxed">
+            Satış öncesinden teknik servise kadar 20 yıllık köklü tecrübemizle Hatay genelinde tam donanımlı destek sağlıyoruz.
+          </p>
         </div>
+
+        {/* YENİ DIZAYN MİMARİSİ: Ağır dikey çizgiler içermeyen, tarayıcı dostu temiz ızgara yapısı */}
+        <div className="hizmet-grid-wrapper grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
+          {hizmetler.map((h, i) => (
+            <div 
+              key={i} 
+              className="hizmet-card-v2 opacity-0 bg-white border border-slate-100 rounded-[2rem] p-8 md:p-10 shadow-sm md:hover:shadow-xl md:hover:border-teal-100 md:hover:-translate-y-1 md:transition-all md:duration-500 flex flex-col justify-between min-h-[260px] transform-gpu will-change-transform"
+            >
+              <div>
+                {/* Üst Satır: Devasa Rakam ve Klas Etiket */}
+                <div className="flex items-start justify-between mb-8">
+                  <span className="font-serif italic text-slate-200/80 font-black text-5xl md:text-6xl leading-none select-none tracking-tighter tabular-nums">
+                    {h.number}
+                  </span>
+                  <span className="text-[9px] tracking-[0.2em] uppercase font-black text-teal-700 bg-teal-50 border border-teal-100/60 rounded-xl px-3 py-1.5">
+                    {h.detail}
+                  </span>
+                </div>
+
+                {/* İçerik Alanı */}
+                <h3 className="text-slate-800 font-black text-2xl mb-3 tracking-tight">
+                  {h.title}
+                </h3>
+                <p className="text-slate-500 text-sm leading-relaxed font-medium max-w-md">
+                  {h.desc}
+                </p>
+              </div>
+
+              {/* Alt Aksiyon Linki */}
+              <div className="mt-8 pt-6 border-t border-slate-50 flex justify-end">
+                <Link 
+                  href="/iletisim" 
+                  className="inline-flex items-center gap-2 text-xs font-bold tracking-wider uppercase text-slate-400 hover:text-teal-600 md:transition-colors md:duration-300"
+                >
+                  Detaylar <ArrowRight size={14} />
+                </Link>
+              </div>
+            </div>
+          ))}
+        </div>
+
       </div>
     </section>
   )
